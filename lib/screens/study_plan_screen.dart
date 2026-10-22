@@ -118,7 +118,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: selectedPriority,
+              initialValue: selectedPriority,
               decoration: const InputDecoration(
                 labelText: 'Prioridad',
                 border: OutlineInputBorder(),
@@ -281,7 +281,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         if (pendingTasks.isEmpty)
           _buildEmptyCard('¡No tienes tareas pendientes!')
         else
-          ...pendingTasks.map((task) => _buildTaskCard(task)).toList(),
+          ...pendingTasks.map((task) => _buildTaskCard(task)),
         const SizedBox(height: 24),
         const Text(
           'Proyectos grupales',
@@ -443,7 +443,7 @@ class _StudyPlanScreenState extends State<StudyPlanScreen> {
         if (completedTasks.isEmpty)
           _buildEmptyCard('Aún no has completado ninguna tarea.')
         else
-          ...completedTasks.map((task) => _buildTaskCard(task)).toList(),
+          ...completedTasks.map((task) => _buildTaskCard(task)),
       ],
     );
   }

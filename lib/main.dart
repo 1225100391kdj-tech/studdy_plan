@@ -17,7 +17,7 @@ class StudyPlanApp extends StatelessWidget {
         fontFamily: 'sans-serif',
         useMaterial3: true,
       ),
-      home: const MainScreen(),
+      home: const LoginScreen(), // Pantalla de inicio de sesión -> lleva a MainScreen
     );
   }
 }
@@ -504,6 +504,402 @@ class _MainScreenState extends State<MainScreen> {
         child: Text(
           message,
           style: const TextStyle(color: textMuted, fontSize: 14),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+//  PANTALLA NUEVA: INICIO DE SESIÓN (LoginScreen)
+//  Se conecta con la interfaz existente: al iniciar sesión navega a MainScreen.
+//  No modifica nada de TaskItem / MainScreen.
+// ============================================================================
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _rememberMe = true;
+
+  // Paleta de la pantalla de login (basada en la captura de referencia)
+  static const Color _bg = Color(0xFFFAF9F5);
+  static const Color _sage = Color(0xFF758D78);
+  static const Color _sageSoft = Color(0xFFECF0EA);
+  static const Color _ink = Color(0xFF2B2B26);
+  static const Color _muted = Color(0xFF77766F);
+  static const Color _line = Color(0xFFE6E4DE);
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // Navega a la pantalla principal (la de las tareas)
+  void _goToHome() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+    );
+  }
+
+  void _showMessage(String text) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(text),
+          backgroundColor: _sage,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  void _onLogin() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || !email.contains('@')) {
+      _showMessage('Escribe un correo electrónico válido.');
+      return;
+    }
+    if (password.isEmpty) {
+      _showMessage('Escribe tu contraseña.');
+      return;
+    }
+    _goToHome();
+  }
+
+  InputDecoration _fieldDecoration({
+    required String hint,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    OutlineInputBorder border(Color color) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide(color: color, width: 1.2),
+        );
+
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: _muted, fontSize: 16),
+      prefixIcon: Icon(icon, color: _muted, size: 24),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      enabledBorder: border(_line),
+      focusedBorder: border(_sage),
+      border: border(_line),
+    );
+  }
+
+  Widget _label(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: _ink,
+        ),
+      ),
+    );
+  }
+
+  Widget _socialButton({
+    required Widget icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: SizedBox(
+        height: 52,
+        child: OutlinedButton(
+          onPressed: onTap,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: Colors.white,
+            side: const BorderSide(color: _line, width: 1.2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icon,
+              const SizedBox(width: 10),
+              Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: _ink,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _bg,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Logo
+                Center(
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: _sageSoft,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(Icons.menu_book_rounded, color: _sage, size: 30),
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // Título y subtítulo
+                const Text(
+                  'StudyPlan',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w800,
+                    color: _ink,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Tu compañero de estudio calmado, ordenado y eficiente.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 17, color: _muted, height: 1.4),
+                ),
+                const SizedBox(height: 36),
+
+                // Correo
+                _label('Correo electrónico'),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(fontSize: 16, color: _ink),
+                  decoration: _fieldDecoration(
+                    hint: 'ejemplo@dominio.com',
+                    icon: Icons.mail_outline_rounded,
+                  ),
+                ),
+                const SizedBox(height: 22),
+
+                // Contraseña
+                _label('Contraseña'),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _onLogin(),
+                  style: const TextStyle(fontSize: 16, color: _ink),
+                  decoration: _fieldDecoration(
+                    hint: '••••••••',
+                    icon: Icons.lock_outline_rounded,
+                    suffix: IconButton(
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: _muted,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Recordarme / Olvidaste contraseña
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () => setState(() => _rememberMe = !_rememberMe),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 22,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                color: _rememberMe ? _sage : Colors.white,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: _rememberMe ? _sage : _line,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: _rememberMe
+                                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Recordarme',
+                              style: TextStyle(fontSize: 15, color: _muted),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => _showMessage(
+                          'La recuperación de contraseña estará disponible pronto.'),
+                      child: const Text(
+                        '¿Olvidaste tu contraseña?',
+                        style: TextStyle(
+                          color: _sage,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 22),
+
+                // Botón principal
+                SizedBox(
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: _onLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _sage,
+                      elevation: 0,
+                      shape: const StadiumBorder(),
+                    ),
+                    child: const Text(
+                      'Iniciar sesión',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 26),
+
+                // Divisor
+                Row(
+                  children: const [
+                    Expanded(child: Divider(color: _line, thickness: 1.2)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'o continúa con',
+                        style: TextStyle(fontSize: 15, color: _muted),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: _line, thickness: 1.2)),
+                  ],
+                ),
+                const SizedBox(height: 22),
+
+                // Google / Apple
+                Row(
+                  children: [
+                    _socialButton(
+                      icon: const Text(
+                        'G',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF4285F4),
+                        ),
+                      ),
+                      text: 'Google',
+                      onTap: _goToHome,
+                    ),
+                    const SizedBox(width: 14),
+                    _socialButton(
+                      icon: const Icon(Icons.apple, size: 26, color: _ink),
+                      text: 'Apple',
+                      onTap: _goToHome,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+
+                // Registro
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '¿No tienes una cuenta? ',
+                      style: TextStyle(fontSize: 16, color: _muted),
+                    ),
+                    GestureDetector(
+                      onTap: () => _showMessage(
+                          'El registro estará disponible pronto.'),
+                      child: const Text(
+                        'Regístrate gratis',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: _sage,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+
+                // Términos
+                const Text.rich(
+                  TextSpan(
+                    style: TextStyle(fontSize: 13.5, color: _muted, height: 1.5),
+                    children: [
+                      TextSpan(text: 'Al continuar, aceptas nuestros '),
+                      TextSpan(
+                        text: 'Términos de servicio',
+                        style: TextStyle(
+                          color: _ink,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      TextSpan(text: ' y '),
+                      TextSpan(
+                        text: 'Política de privacidad',
+                        style: TextStyle(
+                          color: _ink,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
